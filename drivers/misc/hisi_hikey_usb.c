@@ -178,7 +178,7 @@ static int hisi_hikey_usb_of_role_switch(struct platform_device *pdev,
 	}
 
 	hisi_hikey_usb->dev_role_sw = usb_role_switch_get(dev);
-	if (!hisi_hikey_usb->dev_role_sw)
+	if (!hisi_hikey_usb->dev_role_sw || PTR_ERR(hisi_hikey_usb->dev_role_sw) == -EPROBE_DEFER)
 		return -EPROBE_DEFER;
 	if (IS_ERR(hisi_hikey_usb->dev_role_sw)) {
 		dev_err(dev, "get device role switch failed with error %ld\n",

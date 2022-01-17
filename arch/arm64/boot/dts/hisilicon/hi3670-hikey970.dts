@@ -9,6 +9,7 @@
 
 /dts-v1/;
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
 
 #include "hi3670.dtsi"
 #include "hikey970-pinctrl.dtsi"
@@ -40,6 +41,143 @@
 		reg = <0x0 0x0 0x0 0x0>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		bl31 {
+			reg = <0x0 0x1FE00000 0x0 0x400000>;
+			no-map;
+		};
+
+		ramoops_ram:pstore-mem{
+			compatible = "ramoops";
+			reg = <0x0 0x20A00000 0x0 0x100000>;
+			record-size	= <0x00020000>;
+			console-size	= <0x00020000>;
+			ftrace-size	= <0x0>;
+			dump-oops = <0x1>;
+			ecc-size = <0x0>;
+		};
+
+		uefi-reboot-mode {
+			reg = <0x0 0x32100000 0x0 0x00001000>;
+			no-map;
+		};
+
+		hifi-base {
+			reg = <0x0 0x8D500000 0x0 0xC00000>;
+			no-map;
+		};
+
+		lpmx-core {
+			reg = <0x0 0x8E100000 0x0 0x100000>;
+			no-map;
+		};
+
+		lpmcu {
+			reg = <0x0 0x8E200000 0x0 0x40000>;
+			no-map;
+		};
+
+		hifi-data {
+			reg = <0x0 0x8E300000 0x0 0x500000>;
+			no-map;
+		};
+	};
+
+	reboot-mode-syscon@32100000 {
+		compatible = "syscon", "simple-mfd";
+		reg = <0x0 0x32100000 0x0 0x00001000>;
+
+		reboot-mode {
+			compatible = "syscon-reboot-mode";
+			offset = <0x0>;
+
+			mode-normal	= <0x77665501>;
+			mode-bootloader	= <0x77665500>;
+			mode-recovery	= <0x77665502>;
+		};
+	};
+
+	keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pwr_key_pmx_func &pwr_key_cfg_func>;
+
+		power {
+			wakeup-source;
+			gpios = <&gpio25 3 GPIO_ACTIVE_LOW>;
+			label = "GPIO Power";
+			linux,code = <KEY_POWER>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		user_led1 {
+			label = "green:user1";
+			gpios = <&gpio3 6 0>;
+			linux,default-trigger = "none";
+		};
+
+		user_led2 {
+			label = "green:user2";
+			gpios = <&gpio20 7 0>;
+			linux,default-trigger = "none";
+		};
+
+		user_led3 {
+			label = "green:user3";
+			gpios = <&gpio1 6 0>;
+			linux,default-trigger = "none";
+		};
+
+		user_led4 {
+			label = "green:user4";
+			gpios = <&gpio1 7 0>;
+			panic-indicator;
+			linux,default-trigger = "none";
+		};
+
+		can_active_led {
+			label = "green:can";
+			gpios = <&gpio1 4 0>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		gps_active_led {
+			label = "green:gps";
+			gpios = <&gpio6 1 0>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		bt_active_led {
+			label = "blue:bt";
+			gpios = <&gpio2 3 0>;
+			linux,default-trigger = "hci0-power";
+			default-state = "off";
+		};
+
+		wlan_active_led {
+			label = "yellow:wlan";
+			gpios = <&gpio3 0 0>;
+			linux,default-trigger = "phy0tx";
+			default-state = "off";
+		};
+
+		sd_active_led {
+			label = "green:sd";
+			/* gpio_192_sd_led */
+			gpios = <&gpio24 0 0>;
+			linux,default-trigger = "mmc0";
+		};
+	};
+
 	wlan_en: wlan-en-1-8v {
 		compatible = "regulator-fixed";
 		regulator-name = "wlan-en-regulator";
@@ -52,6 +190,47 @@
 		/* WLAN card specific delay */
 		startup-delay-us = <70000>;
 		enable-active-high;
+
+		vin-supply = <&ldo9>;
+	};
+
+	gps_en: gps-en-1-8v {
+		compatible = "regulator-fixed";
+		regulator-name = "gps-en-regulator";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		/* GPIO_168_GPS_EN */
+		gpio = <&gpio21 0 0>;
+		regulator-always-on;
+
+		/* T-active: 15ms, NSTANDBY negated to device active */
+		startup-delay-us = <15000>;
+		enable-active-high;
+	};
+
+	hikey_usbhub: hikey_usbhub {
+		compatible = "hisilicon,usbhub";
+
+		typec-vbus-gpios = <&gpio26 1 0>;
+		otg-switch-gpios = <&gpio4 2 0>;
+		hub-reset-en-gpios = <&gpio0 3 0>;
+		hub-vdd-supply = <&ldo17>;
+		usb-role-switch;
+
+		port {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			hikey_usb_ep0: endpoint@0 {
+				reg = <0>;
+				remote-endpoint = <&dwc3_role_switch>;
+			};
+			hikey_usb_ep1: endpoint@1 {
+				reg = <1>;
+				remote-endpoint = <&rt1711h_ep>;
+			};
+		};
 	};
 };
 
@@ -396,6 +575,7 @@
 	non-removable;
 	broken-cd;
 	cap-power-off-card;
+	keep-power-in-suspend;
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdio_pmx_func
 		     &sdio_clk_cfg_func
@@ -425,8 +605,108 @@
 	status = "okay";
 };
 
+&uart3 {
+	/* GPS Module */
+	label = "GPS-UART";
+	status = "okay";
+};
+
+&uart4 {
+	status = "okay";
+
+	bluetooth {
+		compatible = "ti,wl1837-st";
+		enable-gpios = <&gpio6 6 GPIO_ACTIVE_HIGH>;
+		max-speed = <921600>;
+	};
+};
+
 &uart6 {
 	/* On Low speed expansion header */
 	label = "LS-UART1";
 	status = "okay";
+};
+
+&usb_phy {
+	phy-supply = <&ldo17>;
+};
+
+&i2c1 {
+	status = "okay";
+
+	rt1711h: rt1711h@4e {
+		compatible = "richtek,rt1711h";
+		reg = <0x4e>;
+		status = "okay";
+		interrupt-parent = <&gpio27>;
+		interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&usb_cfg_func>;
+
+		usb_con: connector {
+			compatible = "usb-c-connector";
+			label = "USB-C";
+			data-role = "dual";
+			power-role = "dual";
+			try-power-role = "sink";
+			source-pdos = <PDO_FIXED(5000, 500, PDO_FIXED_USB_COMM)>;
+			sink-pdos = <PDO_FIXED(5000, 500, PDO_FIXED_USB_COMM)
+				PDO_VAR(5000, 5000, 1000)>;
+			op-sink-microwatt = <10000000>;
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@1 {
+					reg = <1>;
+					usb_con_ss: endpoint {
+						remote-endpoint = <&dwc3_ss>;
+					};
+				};
+			};
+		};
+		port {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			rt1711h_ep: endpoint@0 {
+				reg = <0>;
+				remote-endpoint = <&hikey_usb_ep1>;
+			};
+		};
+	};
+};
+
+&i2c2 {
+	/* USB HUB is on this bus at address 0x44 */
+	status = "okay";
+};
+
+
+&dwc3 { /* USB */
+	dr_mode = "otg";
+	maximum-speed = "super-speed";
+	phy_type = "utmi";
+	snps,dis-del-phy-power-chg-quirk;
+	snps,dis_u2_susphy_quirk;
+	snps,dis_u3_susphy_quirk;
+	snps,tx_de_emphasis_quirk;
+	snps,tx_de_emphasis = <1>;
+	snps,dis-split-quirk;
+	snps,gctl-reset-quirk;
+	usb-role-switch;
+	role-switch-default-mode = "host";
+	port {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		dwc3_role_switch: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&hikey_usb_ep0>;
+		};
+
+		dwc3_ss: endpoint@1 {
+			reg = <1>;
+			remote-endpoint = <&usb_con_ss>;
+		};
+	};
 };

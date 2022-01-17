@@ -91,7 +91,7 @@ examples:
                       "pcie_apb_sys", "pcie_aclk";
       };
 
-      pcie@f5000000 {
+      pcie@f4000000 {
         compatible = "hisilicon,kirin970-pcie";
         reg = <0x0 0xf4000000 0x0 0x1000000>,
               <0x0 0xfc180000 0x0 0x1000>,
