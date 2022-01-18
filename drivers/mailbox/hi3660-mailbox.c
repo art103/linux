@@ -230,6 +230,7 @@ static struct mbox_chan *hi3660_mbox_xlate(struct mbox_controller *controller,
 
 static const struct of_device_id hi3660_mbox_of_match[] = {
 	{ .compatible = "hisilicon,hi3660-mbox", },
+	{ .compatible = "hisilicon,hi3670-mbox", },
 	{},
 };
 
