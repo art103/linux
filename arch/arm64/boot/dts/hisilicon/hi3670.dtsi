@@ -8,6 +8,7 @@
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clock/hi3670-clock.h>
+#include <dt-bindings/thermal/thermal.h>
 #include <dt-bindings/usb/pd.h>
 
 / {
@@ -61,6 +62,14 @@
 			device_type = "cpu";
 			reg = <0x0 0x0>;
 			enable-method = "psci";
+			next-level-cache = <&A53_L2>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			capacity-dmips-mhz = <592>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER0>;
+			operating-points-v2 = <&cluster0_opp>;
+			#cooling-cells = <2>;
+			dynamic-power-coefficient = <88>;
+			sched-energy-costs = <&CPU_COST_A53 &CLUSTER_COST_A53>;
 		};
 
 		cpu1: cpu@1 {
@@ -68,6 +77,13 @@
 			device_type = "cpu";
 			reg = <0x0 0x1>;
 			enable-method = "psci";
+			next-level-cache = <&A53_L2>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			capacity-dmips-mhz = <592>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER0>;
+			operating-points-v2 = <&cluster0_opp>;
+			#cooling-cells = <2>;
+			sched-energy-costs = <&CPU_COST_A53 &CLUSTER_COST_A53>;
 		};
 
 		cpu2: cpu@2 {
@@ -75,6 +91,13 @@
 			device_type = "cpu";
 			reg = <0x0 0x2>;
 			enable-method = "psci";
+			next-level-cache = <&A53_L2>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			capacity-dmips-mhz = <592>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER0>;
+			operating-points-v2 = <&cluster0_opp>;
+			#cooling-cells = <2>;
+			sched-energy-costs = <&CPU_COST_A53 &CLUSTER_COST_A53>;
 		};
 
 		cpu3: cpu@3 {
@@ -82,6 +105,13 @@
 			device_type = "cpu";
 			reg = <0x0 0x3>;
 			enable-method = "psci";
+			next-level-cache = <&A53_L2>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
+			capacity-dmips-mhz = <592>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER0>;
+			operating-points-v2 = <&cluster0_opp>;
+			#cooling-cells = <2>;
+			sched-energy-costs = <&CPU_COST_A53 &CLUSTER_COST_A53>;
 		};
 
 		cpu4: cpu@100 {
@@ -89,6 +119,14 @@
 			device_type = "cpu";
 			reg = <0x0 0x100>;
 			enable-method = "psci";
+			next-level-cache = <&A73_L2>;
+			cpu-idle-states = <&CPU_SLEEP_1 &CLUSTER_SLEEP_1>;
+			capacity-dmips-mhz = <1024>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER1>;
+			operating-points-v2 = <&cluster1_opp>;
+			#cooling-cells = <2>;
+			dynamic-power-coefficient = <342>;
+			sched-energy-costs = <&CPU_COST_A73 &CLUSTER_COST_A73>;
 		};
 
 		cpu5: cpu@101 {
@@ -96,6 +134,13 @@
 			device_type = "cpu";
 			reg = <0x0 0x101>;
 			enable-method = "psci";
+			next-level-cache = <&A73_L2>;
+			cpu-idle-states = <&CPU_SLEEP_1 &CLUSTER_SLEEP_1>;
+			capacity-dmips-mhz = <1024>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER1>;
+			operating-points-v2 = <&cluster1_opp>;
+			#cooling-cells = <2>;
+			sched-energy-costs = <&CPU_COST_A73 &CLUSTER_COST_A73>;
 		};
 
 		cpu6: cpu@102 {
@@ -103,6 +148,13 @@
 			device_type = "cpu";
 			reg = <0x0 0x102>;
 			enable-method = "psci";
+			next-level-cache = <&A73_L2>;
+			cpu-idle-states = <&CPU_SLEEP_1 &CLUSTER_SLEEP_1>;
+			capacity-dmips-mhz = <1024>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER1>;
+			operating-points-v2 = <&cluster1_opp>;
+			#cooling-cells = <2>;
+			sched-energy-costs = <&CPU_COST_A73 &CLUSTER_COST_A73>;
 		};
 
 		cpu7: cpu@103 {
@@ -110,6 +162,172 @@
 			device_type = "cpu";
 			reg = <0x0 0x103>;
 			enable-method = "psci";
+			next-level-cache = <&A73_L2>;
+			cpu-idle-states = <&CPU_SLEEP_1 &CLUSTER_SLEEP_1>;
+			capacity-dmips-mhz = <1024>;
+			clocks = <&stub_clock HI3670_CLK_STUB_CLUSTER1>;
+			operating-points-v2 = <&cluster1_opp>;
+			#cooling-cells = <2>;
+			sched-energy-costs = <&CPU_COST_A73 &CLUSTER_COST_A73>;
+		};
+
+		idle-states {
+			entry-method = "psci";
+
+			CPU_SLEEP_0: cpu-sleep-0 {
+				compatible = "arm,idle-state";
+				local-timer-stop;
+				arm,psci-suspend-param = <0x0010000>;
+				entry-latency-us = <40>;
+				exit-latency-us = <70>;
+				min-residency-us = <3000>;
+			};
+
+			CLUSTER_SLEEP_0: cluster-sleep-0 {
+				compatible = "arm,idle-state";
+				local-timer-stop;
+				arm,psci-suspend-param = <0x1010000>;
+				entry-latency-us = <500>;
+				exit-latency-us = <5000>;
+				min-residency-us = <10000>;
+			};
+
+
+			CPU_SLEEP_1: cpu-sleep-1 {
+				compatible = "arm,idle-state";
+				local-timer-stop;
+				arm,psci-suspend-param = <0x0010000>;
+				entry-latency-us = <40>;
+				exit-latency-us = <70>;
+				min-residency-us = <3000>;
+			};
+
+			CLUSTER_SLEEP_1: cluster-sleep-1 {
+				compatible = "arm,idle-state";
+				local-timer-stop;
+				arm,psci-suspend-param = <0x1010000>;
+				entry-latency-us = <1000>;
+				exit-latency-us = <5000>;
+				min-residency-us = <10000>;
+			};
+		};
+
+		A53_L2: l2-cache0 {
+			compatible = "cache";
+		};
+
+		A73_L2: l2-cache1 {
+			compatible = "cache";
+		};
+
+		/include/ "hi3670-sched-energy.dtsi"
+	};
+
+	cluster0_opp: opp-table-0 {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp00 {
+			opp-hz = /bits/ 64 <509000000>;
+			opp-microvolt = <680000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp01 {
+			opp-hz = /bits/ 64 <1018000000>;
+			opp-microvolt = <754000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp02 {
+			opp-hz = /bits/ 64 <1210000000>;
+			opp-microvolt = <850000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp03 {
+			opp-hz = /bits/ 64 <1402000000>;
+			opp-microvolt = <850000>;
+			clock-latency-ns = <300000>;
+			opp-suspend;
+		};
+
+		opp04 {
+			opp-hz = /bits/ 64 <1556000000>;
+			opp-microvolt = <950000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp05 {
+			opp-hz = /bits/ 64 <1690000000>;
+			opp-microvolt = <950000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp06 {
+			opp-hz = /bits/ 64 <1844000000>;
+			opp-microvolt = <1050000>;
+			clock-latency-ns = <300000>;
+		};
+	};
+
+	cluster1_opp: opp-table-1 {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp10 {
+			opp-hz = /bits/ 64 <682000000>;
+			opp-microvolt = <680000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp11 {
+			opp-hz = /bits/ 64 <1018000000>;
+			opp-microvolt = <780000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp12 {
+			opp-hz = /bits/ 64 <1210000000>;
+			opp-microvolt = <780000>;
+			clock-latency-ns = <2000000>;
+		};
+
+		opp13 {
+			opp-hz = /bits/ 64 <1364000000>;
+			opp-microvolt = <780000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp14 {
+			opp-hz = /bits/ 64 <1498000000>;
+			opp-microvolt = <900000>;
+			clock-latency-ns = <300000>;
+			opp-suspend;
+		};
+
+		opp15 {
+			opp-hz = /bits/ 64 <1652000000>;
+			opp-microvolt = <900000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp16 {
+			opp-hz = /bits/ 64 <1863000000>;
+			opp-microvolt = <900000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp17 {
+			opp-hz = /bits/ 64 <2093000000>;
+			opp-microvolt = <950000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp18 {
+			opp-hz = /bits/ 64 <2362000000>;
+			opp-microvolt = <1050000>;
+			clock-latency-ns = <300000>;
 		};
 	};
 
@@ -119,11 +337,35 @@
 		      <0x0 0xe82b2000 0 0x2000>, /* GICC */
 		      <0x0 0xe82b4000 0 0x2000>, /* GICH */
 		      <0x0 0xe82b6000 0 0x2000>; /* GICV */
-		#interrupt-cells = <3>;
 		#address-cells = <0>;
+		#interrupt-cells = <3>;
+		interrupt-controller;
 		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(8) |
 					 IRQ_TYPE_LEVEL_HIGH)>;
-		interrupt-controller;
+	};
+
+	a53-pmu {
+		compatible = "arm,cortex-a53-pmu";
+		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-affinity = <&cpu0>,
+				     <&cpu1>,
+				     <&cpu2>,
+				     <&cpu3>;
+	};
+
+	a73-pmu {
+		compatible = "arm,cortex-a73-pmu";
+		interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-affinity = <&cpu4>,
+				     <&cpu5>,
+				     <&cpu6>,
+				     <&cpu7>;
 	};
 
 	timer {
@@ -298,6 +540,30 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&uart6_pmx_func &uart6_cfg_func>;
 			status = "disabled";
+		};
+
+		dma0: dma@fdf30000 {
+			compatible = "hisilicon,k3-dma-1.0";
+			reg = <0x0 0xfdf30000 0x0 0x1000>;
+			#dma-cells = <1>;
+			dma-channels = <16>;
+			dma-requests = <32>;
+			dma-min-chan = <1>;
+			dma-channel-mask = <0xfffe>;
+			interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&crg_ctrl HI3670_CLK_GATE_DMAC>,
+				<&crg_ctrl HI3670_PCLK>;
+			dma-no-cci;
+			dma-type = "hi3670_dma";
+		};
+
+
+		rtc0: rtc@fff04000 {
+			compatible = "arm,pl031", "arm,primecell";
+			reg = <0x0 0Xfff04000 0x0 0x1000>;
+			interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&crg_ctrl HI3670_PCLK>;
+			clock-names = "apb_pclk";
 		};
 
 		gpio0: gpio@e8a0b000 {
@@ -962,6 +1228,77 @@
 			status = "disabled";
 		};
 
+
+		watchdog0: watchdog@e8a06000 {
+			compatible = "arm,sp805", "arm,primecell";
+			reg = <0x0 0xe8a06000 0x0 0x1000>;
+			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&crg_ctrl HI3670_OSC32K>,
+				 <&crg_ctrl HI3670_OSC32K>;
+			clock-names = "wdog_clk", "apb_pclk";
+		};
+
+		watchdog1: watchdog@e8a07000 {
+			compatible = "arm,sp805", "arm,primecell";
+			reg = <0x0 0xe8a07000 0x0 0x1000>;
+			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&crg_ctrl HI3670_OSC32K>,
+				 <&crg_ctrl HI3670_OSC32K>;
+			clock-names = "wdog_clk", "apb_pclk";
+		};
+
+		tsensor: tsensor@fff30000 {
+			compatible = "hisilicon,hi3670-tsensor";
+			reg = <0x0 0xfff30000 0x0 0x1000>;
+			interrupts = <GIC_SPI 145 IRQ_TYPE_LEVEL_HIGH>;
+			#thermal-sensor-cells = <1>;
+		};
+
+		thermal-zones {
+
+			cls0: cls0-thermal {
+				polling-delay = <1000>;
+				polling-delay-passive = <25>;
+				sustainable-power = <4000>;
+
+				/* sensor ID */
+				thermal-sensors = <&tsensor 0>;
+
+				trips {
+					threshold: trip-point0 {
+						temperature = <65000>;
+						hysteresis = <1000>;
+						type = "passive";
+					};
+
+					target: trip-point1 {
+						temperature = <75000>;
+						hysteresis = <1000>;
+						type = "passive";
+					};
+				};
+
+				cooling-maps {
+					map0 {
+						trip = <&target>;
+						contribution = <1024>;
+						cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+								 <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+								 <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+								 <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+					};
+					map1 {
+						trip = <&target>;
+						contribution = <512>;
+						cooling-device = <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+								 <&cpu5 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+								 <&cpu6 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+								 <&cpu7 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+					};
+				};
+			};
+		};
+
 		usb3_otg_bc: usb3_otg_bc@ff200000 {
 			compatible = "syscon", "simple-mfd";
 			reg = <0x0 0xff200000 0x0 0x1000>;
@@ -1014,6 +1351,47 @@
 
 				phys = <&usb_phy>;
 				phy-names = "usb3-phy";
+			};
+		};
+
+		i2s2: hisi_i2s {
+			compatible = "hisilicon,hisi-i2s";
+			reg = <0x0 0xe804f800 0x0 0x400>,
+			      <0x0 0xe804e000 0x0 0x400>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&i2s2_pmx_func &i2s2_cfg_func>;
+			dmas = <&asp_dmac 18 &asp_dmac 19>;
+			dma-names = "rx", "tx";
+			#sound-dai-cells = <0>;
+		};
+
+		asp_dmac: dma-controller@e804b000 {
+			compatible = "hisilicon,hisi-pcm-asp-dma-1.0";
+			reg = <0x0 0xe804b000 0x0 0x1000>;
+			#dma-cells = <1>;
+			dma-channels = <16>;
+			dma-requests = <32>;
+			dma-min-chan = <0>;
+			dma-used-chans = <0xFFFE>;
+			dma-share;
+			interrupts = <GIC_SPI 216 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "asp_dma_irq";
+		};
+
+		sound {
+			compatible = "simple-audio-card";
+			simple-audio-card,name = "hikey-hdmi";
+			simple-audio-card,format = "i2s";
+
+			simple-audio-card,bitclock-master = <&sound_master>;
+			simple-audio-card,frame-master = <&sound_master>;
+
+			sound_master: simple-audio-card,cpu {
+				sound-dai = <&i2s2>;
+			};
+
+			simple-audio-card,codec {
+				sound-dai = <&adv7533>;
 			};
 		};
 	};
